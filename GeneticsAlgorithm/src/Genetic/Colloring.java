@@ -30,6 +30,9 @@ public class Colloring {
     public Colloring() {
         colors = new int[Colloring.numberOfVertex];
     }
+    public Colloring(int numberOfVertex){
+        colors = new int[numberOfVertex];
+    }
 
     public static void setNumberOfVertex(int numberOfVertex)
     {
@@ -106,4 +109,11 @@ public class Colloring {
     {
         colors[position] = color;
     }
+
+    public int getActualNumberOfVertex()
+    {
+        return colors.length;
+    }
+
+
 }

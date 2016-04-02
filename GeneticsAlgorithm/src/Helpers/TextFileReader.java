@@ -1,8 +1,11 @@
 package Helpers;
 
+import Genetic.Colloring;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 /**
@@ -63,6 +66,40 @@ public class TextFileReader {
     private void SkipFirstNLines(int linesToSkip, BufferedReader in) throws IOException {
         for(int i =0; i<4;i++)
             in.readLine();
+    }
+
+    public int giveColorFromRow(String row){
+        Pattern p = Pattern.compile("<|>");
+        String onlyNumbers = p.matcher(row).replaceAll("");
+        String[] idAndColor = onlyNumbers.split(" ");
+        int color = Integer.parseInt(idAndColor[1]);
+        return color;
+    }
+
+    public Colloring readColoring()
+    {
+        ArrayList<Integer> colors = new ArrayList<>();
+        String s;
+        try {
+            while((s = reader.readLine()) != null) {
+                int color = giveColorFromRow(s);
+                colors.add(color);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return convertListOfColorsToColloring(colors);
+    }
+
+
+    public Colloring convertListOfColorsToColloring(ArrayList<Integer> colors){
+        Colloring colloring = new Colloring(colors.size());
+        for (int i =0; i < colors.size() ;i++)
+        {
+            colloring.setColorAtPosition(i, colors.get(i));
+        }
+        return colloring;
     }
 
 }

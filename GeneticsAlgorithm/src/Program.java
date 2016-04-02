@@ -4,6 +4,7 @@ import Crossers.OnePointCross;
 import Genetic.*;
 import Helpers.MyTime;
 import Helpers.StringHelper;
+import Helpers.TextFileReader;
 import Helpers.TextFileWriter;
 import Initialization.GreedyInitializer;
 import Initialization.RandomInitializer;
@@ -12,6 +13,7 @@ import Mutatet.OneStepMutate;
 import MyGraph.GraphFactory;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 /**
  * Created by sanczo on 2016-03-07.
@@ -54,24 +56,35 @@ public class Program {
 
     public static void main(String[] args)
     {
-        Program programInstance = new Program("GEOM120");
+        Program programInstance = new Program("GEOM120a");
 
 
 
 
-        System.out.println(programInstance.graph.GreedyColoring(25));
-        System.out.println("Dopasowanie grafu "+programInstance.graph.getFitness());
-        System.out.println();
+       // System.out.println(programInstance.graph.GreedyColoring(25));
+       // System.out.println("Dopasowanie grafu "+programInstance.graph.getFitness());
+        //System.out.println();
 
-        colorNumber = 64;
+        colorNumber = 39;
 
         populationSize = 1000;
         chanceToMutate = 0.8;
         chanceToCross = 0.8;
 
-        programInstance.researchForOneSelectColor(10);
+     // programInstance.researchForOneSelectColor(10);
 
-        //programInstance.SearchSmallestColorNumber(programInstance);
+       // programInstance.SearchSmallestColorNumber(programInstance);
+        TextFileReader textFileReader = new TextFileReader("GEOM120aBestSolutionWith99.txt");
+
+        textFileReader.CreateBufferedReader();
+        Colloring c = textFileReader.readColoring();
+        int fitness = programInstance.graph.getFitness(c);
+        System.out.println(fitness);
+
+
+
+
+
     }
 
     public  void SearchSmallestColorNumber(Program programInstance) {
@@ -80,10 +93,10 @@ public class Program {
 
         GeneticParameters parameters = new GeneticParameters(graph,populationSize, colorNumber,1,chanceToMutate, chanceToCross);
         while (geneticAlgorithmResult.getResult() == Result.Success) {
-            System.out.println("Szukam rozwiazania dla zbioru kolorów o licznoœci "+ colorNumber);
+            System.out.println("Szukam rozwiazania dla zbioru kolorï¿½w o licznoï¿½ci "+ colorNumber);
             parameters.setColorNumber(colorNumber);
             geneticAlgorithmResult = programInstance.DoGeneticExperimentForSpeceficNumberOfColors(parameters);
-            System.out.println("Dla " + colorNumber + " kolorow poszukiwanie zakoñczy³o siê " + geneticAlgorithmResult.getResult());
+            System.out.println("Dla " + colorNumber + " kolorow poszukiwanie zakoï¿½czyï¿½o siï¿½ " + geneticAlgorithmResult.getResult());
             colorNumber --;
         }
     }
@@ -103,12 +116,12 @@ public class Program {
 
         for(int i =0; i < repeat; i++) {
             GeneticParameters parameters = new GeneticParameters(graph,populationSize, colorNumber,i,chanceToMutate, chanceToCross);
-            System.out.println("Szukam rozwiazania dla zbioru kolorów o licznoœci " + colorNumber);
-            System.out.println("Próba nr " + i);
+            System.out.println("Szukam rozwiazania dla zbioru kolorï¿½w o licznoï¿½ci " + colorNumber);
+            System.out.println("Prï¿½ba nr " + i);
             GeneticAlgorithmResult geneticAlgorithmResult= DoGeneticExperimentForSpeceficNumberOfColors(parameters);
             geneticAlgorithmResult.setTake(i+1);
 
-            if(worldKnow == false)
+            if(worldKnow == false && geneticAlgorithmResult.getResult() == Result.Success)
             {
 
                 printBestIndividual(geneticAlgorithmResult);

@@ -1,9 +1,11 @@
 package Helpers;
 
+import Genetic.Colloring;
 import Genetic.GeneticAlgorithmResult;
 import Genetic.Result;
 
 import java.io.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by sanczo on 2016-03-15.
@@ -81,4 +83,8 @@ public class TextFileWriter  {
     {
         writer.println("<" + vertexId + " " + color + ">");
     }
+
+
+
+
 }
