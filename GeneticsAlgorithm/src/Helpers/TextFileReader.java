@@ -37,6 +37,8 @@ public class TextFileReader {
 
     public List<String> ReadFileAndGiveListOfRows()
     {
+        EndConnection();
+        CreateBufferedReader();
         List<String> listOfRows = new ArrayList<>();
         if(reader != null)
         {
@@ -44,7 +46,7 @@ public class TextFileReader {
 
             try {
                 SkipFirstNLines(4,reader);
-                while((s = reader.readLine()) != null && !s.startsWith("n"))
+                while((s = reader.readLine()).startsWith("n"))
                     listOfRows.add(s);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -53,13 +55,38 @@ public class TextFileReader {
         return listOfRows;
     }
 
+    public List<String> giveListOfColorNumberForEachVertex()
+    {
+        EndConnection();
+        CreateBufferedReader();
+        List<String> listOfColorNumberForEachVertex = new ArrayList<>();
+        if(reader != null)
+        {
+            String s;
+
+            try {
+                while(!(s = reader.readLine()).startsWith("n"))
+                    ;
+                listOfColorNumberForEachVertex.add(s);
+                while ((s = reader.readLine()) != null)
+                    listOfColorNumberForEachVertex.add(s);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return listOfColorNumberForEachVertex;
+
+    }
+
     public void EndConnection()
     {
-        try {
-            reader.close();
-            reader = null;
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(reader != null) {
+            try {
+                reader.close();
+                reader = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

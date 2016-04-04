@@ -13,6 +13,7 @@ import Mutatet.OneStepMutate;
 import MyGraph.GraphFactory;
 
 import java.io.File;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -74,12 +75,16 @@ public class Program {
      // programInstance.researchForOneSelectColor(10);
 
        // programInstance.SearchSmallestColorNumber(programInstance);
-        TextFileReader textFileReader = new TextFileReader("GEOM120aBestSolutionWith99.txt");
+     /*   TextFileReader textFileReader = new TextFileReader("GEOM120aBestSolutionWith99.txt");
 
         textFileReader.CreateBufferedReader();
         Colloring c = textFileReader.readColoring();
         int fitness = programInstance.graph.getFitness(c);
-        System.out.println(fitness);
+        System.out.println(fitness);*/
+
+        TextFileReader reader = new TextFileReader("GEOM20.col");
+        List<String> list = reader.giveListOfColorNumberForEachVertex();
+        System.out.println(list.get(list.size()-1));
 
 
 

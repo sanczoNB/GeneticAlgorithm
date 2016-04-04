@@ -2,6 +2,8 @@ package MyGraph;
 
 import Genetic.Colloring;
 import Helpers.TextFileReader;
+import org.javatuples.Pair;
+import org.javatuples.Tuple;
 
 import java.util.List;
 
@@ -54,7 +56,6 @@ public class GraphFactory {
 
     private List<String> PossesListOfRows() {
         TextFileReader textFileReader = new TextFileReader(filePath);
-        textFileReader.CreateBufferedReader();
         List<String> listOfRows = textFileReader.ReadFileAndGiveListOfRows();
         textFileReader.EndConnection();
         return listOfRows;
@@ -75,6 +76,17 @@ public class GraphFactory {
         return new EdgeParameters(firstVertexId, secondVertexId, bandwidth);
     }
 
+    private Pair<Integer,Integer> GetVertexIdAndColorNumberFromLettering(String lettering)
+    {
+        String[] afterFirstSplit = lettering.split(" ");
+        String[] arguments = selectNotNull(afterFirstSplit);
+
+        int id = Integer.parseInt(arguments[1]);
+        int colorNumber = Integer.parseInt(arguments[2]);
+
+        return new Pair<>(id, colorNumber);
+    }
+
     private String[] selectNotNull(String[] arguments) {
         String[] result = new String[4];
         int index =0;
@@ -84,7 +96,6 @@ public class GraphFactory {
                 result[index] = s;
                 index ++;
             }
-
         }
         return result;
     }
