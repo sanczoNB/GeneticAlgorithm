@@ -1,6 +1,7 @@
 package Choosers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
+
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  */
 public class RouletteChooser implements Chooser {
     @Override
-    public Colloring choose(List<Colloring> population) {
+    public Individual choose(List<Individual> population) {
 
         double rouleteChosee = Math.random();
 

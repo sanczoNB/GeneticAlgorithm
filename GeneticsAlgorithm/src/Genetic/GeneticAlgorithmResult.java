@@ -13,12 +13,12 @@ public class GeneticAlgorithmResult {
 
     private int take;
 
-    private Colloring bestIndividual;
+    private Individual bestIndividual;
 
 
     private MyTime durationTime;
 
-    public GeneticAlgorithmResult(Result result, Colloring bestIndividual,int iterations) {
+    public GeneticAlgorithmResult(Result result, Individual bestIndividual,int iterations) {
         this.result = result;
         this.bestIndividual = bestIndividual;
         this.iterations = iterations;
@@ -49,11 +49,11 @@ public class GeneticAlgorithmResult {
     }
 
 
-    public Colloring getBestIndividual() {
+    public Individual getBestIndividual() {
         return bestIndividual;
     }
 
-    public void setBestIndividual(Colloring bestIndividual) {
+    public void setBestIndividual(Individual bestIndividual) {
         this.bestIndividual = bestIndividual;
     }
 }

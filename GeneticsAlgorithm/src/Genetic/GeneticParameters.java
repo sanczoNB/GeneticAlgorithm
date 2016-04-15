@@ -1,6 +1,7 @@
 package Genetic;
 
 import MyGraph.Graph;
+import MyGraph.IGraphService;
 
 /**
  * Created by sanczo on 2016-03-15.
@@ -12,9 +13,9 @@ public class GeneticParameters {
     private int iterationNumber;
     private double chanceToMutate;
     private double chanceToCross;
-    private Graph graph;
+    private IGraphService graph;
 
-    public GeneticParameters(Graph graph,int populationSize, int colorNumber,int iterationNumber ,double chanceToMutate, double chanceToCross) {
+    public GeneticParameters(IGraphService graph,int populationSize, int colorNumber,int iterationNumber ,double chanceToMutate, double chanceToCross) {
         this.graph = graph;
         this.populationSize = populationSize;
         this.colorNumber = colorNumber;
@@ -43,7 +44,7 @@ public class GeneticParameters {
         return chanceToCross;
     }
 
-    public Graph getGraph() {
+    public IGraphService getGraph() {
         return graph;
     }
 

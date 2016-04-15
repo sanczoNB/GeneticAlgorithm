@@ -1,11 +1,10 @@
 package Helpers;
 
-import Genetic.Colloring;
 import Genetic.GeneticAlgorithmResult;
+import Genetic.Individual;
 import Genetic.Result;
 
 import java.io.*;
-import java.util.regex.Pattern;
 
 /**
  * Created by sanczo on 2016-03-15.
@@ -19,6 +18,7 @@ public class TextFileWriter  {
 
     public TextFileWriter(String fileName) {
         this.fileName = fileName;
+        CreatePrintWriter();
     }
 
     public void CreatePrintWriter()
@@ -85,6 +85,14 @@ public class TextFileWriter  {
     }
 
 
+    public void print(int[] colors, int individualPosition) {
 
-
+        writer.print("Osbnik nr " + individualPosition+"    [");
+        for (int c : colors)
+        {
+            writer.print(" "+c+",");
+        }
+        writer.print("]\n");
+        writer.println();
+    }
 }

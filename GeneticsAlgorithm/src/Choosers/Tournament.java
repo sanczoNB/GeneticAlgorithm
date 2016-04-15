@@ -1,7 +1,8 @@
 package Choosers;
 
 import Comperators.SortByFitnessComparator;
-import Genetic.Colloring;
+import Genetic.AlgorithmParameters;
+import Genetic.Individual;
 import Helpers.RandomHelper;
 
 import java.util.List;
@@ -12,19 +13,16 @@ import java.util.Arrays;
  */
 public class Tournament implements Chooser {
 
-    private int participantNumber;
 
-
-    public Tournament(int participantNumber)
+    public Tournament()
     {
-        this.participantNumber = participantNumber;
+
     }
 
 
     @Override
-    public Colloring choose(List<Colloring> population) {
-        Colloring[] participants = new Colloring[participantNumber];
-
+    public Individual choose(List<Individual> population) {
+        Individual[] participants = new Individual[AlgorithmParameters.getInstance().getTournamentSize()];
         for(int i = 0; i < participants.length; i++)
             participants[i] = population.get(RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(population.size()));
         Arrays.sort(participants,new SortByFitnessComparator());

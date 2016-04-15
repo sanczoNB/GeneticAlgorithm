@@ -1,6 +1,6 @@
 package Initialization;
 
-import Genetic.Colloring;
+import Genetic.Individual;
 import MyGraph.Graph;
 
 /**
@@ -14,11 +14,13 @@ public class GreedyInitializer implements Initializer {
     }
 
     @Override
-    public void Init(Colloring individual) {
+    public Individual Init() {
+        Individual individual = new Individual();
         int[] colloringByGreedy = graph.giveColloringByGreedy();
-        for(int i = 0; i< Colloring.getNumberOfVertex(); i++)
+        for(int i = 0; i< Individual.getNumberOfGens(); i++)
         {
             individual.setColorAtPosition(i, colloringByGreedy[i]);
         }
+        return individual;
     }
 }

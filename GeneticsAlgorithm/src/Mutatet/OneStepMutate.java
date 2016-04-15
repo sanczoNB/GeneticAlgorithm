@@ -1,8 +1,8 @@
 package Mutatet;
 
-import Genetic.Colloring;
+import Genetic.AlgorithmParameters;
+import Genetic.Individual;
 import Helpers.RandomHelper;
-import Mutatet.Mutating;
 
 /**
  * Created by sanczo on 2016-03-12.
@@ -22,7 +22,7 @@ public class OneStepMutate implements Mutating {
             step = 1;
         else step = -1;
 
-        newColor = (Genetic.Genetic.Colloring.colorsNumber + oldColor + step) % Genetic.Genetic.Colloring.colorsNumber;
+        newColor = (Genetic.Genetic.Individual.colorsNumber + oldColor + step) % Genetic.Genetic.Individual.colorsNumber;
 
         return newColor;
     }
@@ -42,10 +42,10 @@ public class OneStepMutate implements Mutating {
 
         newColor = oldColor + step;
 
-        if (newColor == -1)
+        if (newColor == 0)
             newColor = oldColor;
 
-        if (newColor == Colloring.colorsNumber)
+        if (newColor == AlgorithmParameters.getInstance().getMaxUsedColor())
             newColor = oldColor;
 
 

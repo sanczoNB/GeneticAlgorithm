@@ -1,6 +1,6 @@
 package Choosers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
 import MyGraph.Graph;
 
 
@@ -17,7 +17,7 @@ public class BestChildWin implements ChildSelector {
 
 
     @Override
-    public Colloring selectChild(Colloring firstChild, Colloring secondChild) {
+    public Individual selectChild(Individual firstChild, Individual secondChild) {
         int fitnessOfFirstChild = graph.getFitness(firstChild);
         int fitnessOfSeconfChild = graph.getFitness(secondChild);
         if(fitnessOfFirstChild < fitnessOfSeconfChild)

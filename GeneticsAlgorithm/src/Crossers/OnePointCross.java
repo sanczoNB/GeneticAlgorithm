@@ -1,7 +1,7 @@
 package Crossers;
 
 import Choosers.ChildSelector;
-import Genetic.Colloring;
+import Genetic.Individual;
 import Helpers.RandomHelper;
 import org.javatuples.Pair;
 
@@ -13,19 +13,18 @@ public class OnePointCross implements Crosser {
 
     private ChildSelector childSelector;
 
-    public OnePointCross(ChildSelector childSelector) {
-        this.childSelector = childSelector;
+    public OnePointCross() {
     }
 
     @Override
-    public Colloring cross(Colloring firstParent, Colloring secondParent) {
+    public Pair<Individual, Individual> cross(Individual firstParent, Individual secondParent) {
 
 
-        int pointOfCut = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(Colloring.getNumberOfVertex() - 1) + 1;
+        int pointOfCut = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(Individual.getNumberOfGens() - 1) + 1;
 
-        Colloring firstChild = new Colloring();
+        Individual firstChild = new Individual();
 
-        Colloring secondChild = new Colloring();
+        Individual secondChild = new Individual();
 
         for (int i =0; i < pointOfCut; i++)
         {
@@ -33,12 +32,13 @@ public class OnePointCross implements Crosser {
             secondChild.assignColor(i, secondParent.getColorOnPosition(i));
         }
 
-        for (int i = pointOfCut; i < Colloring.getNumberOfVertex(); i++)
+        for (int i = pointOfCut; i < Individual.getNumberOfGens(); i++)
         {
             firstChild.assignColor(i, secondParent.getColorOnPosition(i));
             secondChild.assignColor(i, firstParent.getColorOnPosition(i));
         }
 
-        return childSelector.selectChild(firstChild, secondChild);
+
+        return new Pair<>(firstChild, secondChild);
     }
 }

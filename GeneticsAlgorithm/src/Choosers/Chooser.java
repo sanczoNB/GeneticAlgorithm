@@ -1,6 +1,7 @@
 package Choosers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
+
 import java.util.List;
 
 /**
@@ -8,6 +9,6 @@ import java.util.List;
  */
 public interface Chooser {
 
-        public Colloring choose(List<Colloring> population);
+        public Individual choose(List<Individual> population);
 
 }

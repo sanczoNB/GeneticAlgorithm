@@ -1,20 +1,17 @@
-import Choosers.BestChildWin;
-import Choosers.RouletteChooser;
+import Choosers.Tournament;
 import Crossers.OnePointCross;
+import Exceptions.FlatPopulationException;
 import Genetic.*;
-import Helpers.MyTime;
-import Helpers.StringHelper;
-import Helpers.TextFileReader;
+import Helpers.ProxyHandlerToMeasureTime;
 import Helpers.TextFileWriter;
-import Initialization.GreedyInitializer;
 import Initialization.RandomInitializer;
-import MyGraph.Graph;
-import Mutatet.OneStepMutate;
-import MyGraph.GraphFactory;
+import Mutatet.RandomMutate;
+import MyGraph.GraphMaker;
+import MyGraph.IGraphService;
 
-import java.io.File;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Created by sanczo on 2016-03-07.
@@ -22,218 +19,112 @@ import java.util.regex.Pattern;
 public class Program {
 
 
-    private int success;
+    private IGraphService graph;
 
-    private int failure;
-
-    private int sum;
-
-    private Graph graph;
-
-    private StringHelper stringHelper;
-    private TextFileWriter timeLogger;
-
-    private static int colorNumber;
-
-    private String fileName;
-
-    private String directoryPath;
-
-    private static int populationSize;
-
-    private static double chanceToMutate;
-
-    private static double chanceToCross;
-
-    private String pathToAllResults ;
+    private ProxyHandlerToMeasureTime timeKepper;
 
     public Program(String fileName)
     {
-        stringHelper = new StringHelper();
-        GraphFactory factory = new GraphFactory(fileName + ".col");
-        this.graph = factory.getGraph();
-        this.fileName = fileName;
-    }
-
-    public static void main(String[] args)
-    {
-        Program programInstance = new Program("GEOM120a");
+        GraphMaker factory = new GraphMaker(fileName + ".col");
 
 
+        //Wersja z proxy mierzacym czas
+        this.graph = this.createDynamicProxy(factory);
 
-
-       // System.out.println(programInstance.graph.GreedyColoring(25));
-       // System.out.println("Dopasowanie grafu "+programInstance.graph.getFitness());
-        //System.out.println();
-
-        colorNumber = 39;
-
-        populationSize = 1000;
-        chanceToMutate = 0.8;
-        chanceToCross = 0.8;
-
-     // programInstance.researchForOneSelectColor(10);
-
-       // programInstance.SearchSmallestColorNumber(programInstance);
-     /*   TextFileReader textFileReader = new TextFileReader("GEOM120aBestSolutionWith99.txt");
-
-        textFileReader.CreateBufferedReader();
-        Colloring c = textFileReader.readColoring();
-        int fitness = programInstance.graph.getFitness(c);
-        System.out.println(fitness);*/
-
-        TextFileReader reader = new TextFileReader("GEOM20.col");
-        List<String> list = reader.giveListOfColorNumberForEachVertex();
-        System.out.println(list.get(list.size()-1));
-
-
-
+        //Bez proxy
+        //this.graph = factory.getGraph();
 
 
     }
 
-    public  void SearchSmallestColorNumber(Program programInstance) {
-        GeneticAlgorithmResult geneticAlgorithmResult=new GeneticAlgorithmResult(Result.Success,null,0);
-        programInstance.pathToAllResults = "";
-
-        GeneticParameters parameters = new GeneticParameters(graph,populationSize, colorNumber,1,chanceToMutate, chanceToCross);
-        while (geneticAlgorithmResult.getResult() == Result.Success) {
-            System.out.println("Szukam rozwiazania dla zbioru kolor�w o liczno�ci "+ colorNumber);
-            parameters.setColorNumber(colorNumber);
-            geneticAlgorithmResult = programInstance.DoGeneticExperimentForSpeceficNumberOfColors(parameters);
-            System.out.println("Dla " + colorNumber + " kolorow poszukiwanie zako�czy�o si� " + geneticAlgorithmResult.getResult());
-            colorNumber --;
-        }
+    private IGraphService createDynamicProxy(GraphMaker factory) {
+        timeKepper = new ProxyHandlerToMeasureTime(factory.getGraph());
+        IGraphService graphSrevice =
+                (IGraphService) Proxy.newProxyInstance(
+                        IGraphService.class.getClassLoader(),
+                        new Class[]{IGraphService.class},
+                        timeKepper);
+        return graphSrevice;
     }
 
-    public  void researchForOneSelectColor(int repeat) {
+    public static void main(String[] args) throws FlatPopulationException {
 
-        directoryPath = stringHelper.makeTitleForDirectoryWithResults(fileName, colorNumber);
-        pathToAllResults = directoryPath+"/all results/";
-        makeDirector(directoryPath);
-        makeDirectorForAllResults();
+        Program simpleInstance = new Program("GEOM4");
 
-        createLogger("Raport"+colorNumber);
+        int maxUsedColorForSimpleGraph = simpleInstance.graph.GreedyColoring();
+        System.out.println("Dla prostego, cztero wezwolego grafu gredu znjaduje " + maxUsedColorForSimpleGraph);
+
+        int[] exampleIndividual = {4, 3, 3, 2, 1, 3, 1, 1};
+
+        AlgorithmParameters.getInstance().setMaxUsedColor(12);
+
+        int simpleGraphExampleSolution = simpleInstance.graph.ColorGraph(exampleIndividual);
+
+        System.out.println("Dla prostego, cztero-wezwolego grafu przykladowe zakodowane rozwiazanie daje " + simpleGraphExampleSolution);
 
 
 
-        boolean worldKnow = false;
 
-        for(int i =0; i < repeat; i++) {
-            GeneticParameters parameters = new GeneticParameters(graph,populationSize, colorNumber,i,chanceToMutate, chanceToCross);
-            System.out.println("Szukam rozwiazania dla zbioru kolor�w o liczno�ci " + colorNumber);
-            System.out.println("Pr�ba nr " + i);
-            GeneticAlgorithmResult geneticAlgorithmResult= DoGeneticExperimentForSpeceficNumberOfColors(parameters);
-            geneticAlgorithmResult.setTake(i+1);
+        Program programInstance = new Program("GEOM20");
 
-            if(worldKnow == false && geneticAlgorithmResult.getResult() == Result.Success)
-            {
+        Population p = new Population(programInstance.graph);
 
-                printBestIndividual(geneticAlgorithmResult);
-                worldKnow = true;
+        TextFileWriter textFileWriter = new TextFileWriter("FirstGeneration.col");
 
-            }
+        GeneticAlgorithm algorithm = new GeneticAlgorithm(p, textFileWriter);
 
-            incremateFailureOrSuccess(geneticAlgorithmResult);
-            incremateTime(geneticAlgorithmResult);
-            timeLogger.write(geneticAlgorithmResult);
+        int maxUsedColor = programInstance.graph.GreedyColoring();
 
-        }
+        AlgorithmParameters.getInstance().setMaxUsedColor(maxUsedColor);
 
-        long avargeTime = -1;
-        if(success != 0)
-            avargeTime = sum / success;
-        timeLogger.logSuccessAndFailure(success, failure,avargeTime);
-        disconectTextFileWriter(timeLogger);
-    }
+        programInstance.setParam();
 
-    private void makeDirectorForAllResults() {
-        File directory = new File(directoryPath+"/"+"all results");
-        directory.mkdir();
-    }
+        long startTime = System.nanoTime();
 
-    private void makeDirector(String directoryName) {
-        File file = new File(directoryName);
-        String[] names = directoryName.split("/");
-        StringBuilder bob = new StringBuilder(names[0]);
-        File directory = new File(bob.toString());
-        directory.mkdir();
-        for (int i = 1; i < names.length; i++ )
-        {
-            bob.append("/"+names[i]);
-            directory = new File(bob.toString());
-            directory.mkdir();
-            boolean isHeCreate = file.mkdir();
-            System.out.print(isHeCreate);
-        }
+        algorithm.SearchSolutionGraphColoringProblemByGeneticAlgorithm();
+
+        long durationTime = System.nanoTime() - startTime;
+
+        Duration algorithmDuration = Duration.of(durationTime, ChronoUnit.NANOS);
+
+        programInstance.disconectTextFileWriter(textFileWriter);
+
+        System.out.println("Calkowity czas trwania algorytmu " + algorithmDuration.toString());
+
+        System.out.println("Czas wykonywana kolorowania grafu " + programInstance.timeKepper.getTotalTimeInNanoSeconds());
+
+        System.out.println("Sredni czas dzialaniu funkcji kolorujacej graf " + programInstance.timeKepper.getAveregeRunTime());
+
+        System.out.println("Funkcja kolorowania zostala wywolana az " + programInstance.timeKepper.getCounter());
+
+        System.out.print("Koniec");
+
+
 
 
     }
 
-    public void printBestIndividual(GeneticAlgorithmResult geneticAlgorithmResult) {
-        graph.setWriter(new TextFileWriter(directoryPath+"/"+this.fileName+"BestSolutionWith"+colorNumber+".txt"));
-        graph.SetColoring(geneticAlgorithmResult.getBestIndividual());
-        graph.print();
-    }
 
-    private void incremateTime(GeneticAlgorithmResult geneticAlgorithmResult) {
-        if(geneticAlgorithmResult.getResult() == Result.Success)
-            sum+=geneticAlgorithmResult.getDurationTime().getMilliseconds();
-    }
-
-    private  void createLogger(String name) {
-        timeLogger = new TextFileWriter(directoryPath+"/"+name+".txt");
-        timeLogger.CreatePrintWriter();
-    }
-
-    private GeneticAlgorithmResult DoGeneticExperimentForSpeceficNumberOfColors(GeneticParameters parameters) {
-
-        TextFileWriter textFileWriter = new TextFileWriter(pathToAllResults+parameters.getIterationNumber()+".csv");
-
-        Population p = new Population(parameters.getColorNumber(),
-                parameters.getPopulationSize(),
-                parameters.getChanceToCross(),
-                parameters.getChanceToMutate(),
-                parameters.getGraph(),
-                new RouletteChooser(),
-                new OnePointCross(new BestChildWin(parameters.getGraph())),
-                new OneStepMutate(),
-                new GreedyInitializer(graph));
-
-
-        GeneticAlgorithm alg = new GeneticAlgorithm(p, textFileWriter);
-
-
-        long beforeExperiment = System.currentTimeMillis();
-
-        GeneticAlgorithmResult result = alg.SearchSolutionGraphColoringProblemByGeneticAlgorithm();
-        long afterExperiment = System.currentTimeMillis();
-
-        long dif =(afterExperiment - beforeExperiment);
-
-
-
-        MyTime myDif = new MyTime(dif);
-
-        result.setDurationTime(myDif);
-
-
-        disconectTextFileWriter(textFileWriter);
-        return result;
-    }
 
     private void disconectTextFileWriter(TextFileWriter textFileWriter) {
         textFileWriter.FlushData();
         textFileWriter.EndConnection();
     }
-
-    private void incremateFailureOrSuccess(GeneticAlgorithmResult result){
-        if(result.getResult() == Result.Success)
-            success++;
-        else
-            failure++;
+    public void setParam()
+    {
+        AlgorithmParameters param = AlgorithmParameters.getInstance();
+        param.setMaxNumberOfIterationsWithoutProgress(200);
+        param.setSizeOfPopulation(150);
+        param.setChanceToCross(0.85);
+        param.setChanceToMutationCasualGen(0.2 / param.getMaxUsedColor());
+        param.setChanceToMutationFrostGen(0.5 / param.getMaxUsedColor());
+        param.setChooser(new Tournament());
+        param.setCrosser(new OnePointCross());
+        param.setMutating(new RandomMutate());
+        param.setInitializer(new RandomInitializer());
+        param.setMaxNumberIndividualWithTheSameFitness(40);
+        param.setNumberOfElite(100);
+        param.setAverageTournamentSize(5.4);
 
     }
-
-
 }

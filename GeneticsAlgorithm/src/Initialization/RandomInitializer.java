@@ -1,11 +1,8 @@
 package Initialization;
 
-import Genetic.Colloring;
-import Genetic.Population;
+import Genetic.AlgorithmParameters;
+import Genetic.Individual;
 import Helpers.RandomHelper;
-import MyGraph.ColorChoose;
-
-import java.awt.*;
 
 /**
  * Created by sanczo on 2016-03-23.
@@ -13,11 +10,15 @@ import java.awt.*;
 public class RandomInitializer implements Initializer {
 
     @Override
-    public void Init(Colloring individual) {
-        for(int i =0; i < individual.getNumberOfVertex(); i++)
+    public Individual Init() {
+
+        Individual individual = new Individual();
+        for(int i =0; i < individual.getNumberOfGens(); i++)
         {
-            int color = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(Colloring.colorsNumber);
-            individual.setColorAtPosition(i, color);
+            int gen = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(AlgorithmParameters.getInstance().getMaxUsedColor())+1;
+            individual.setColorAtPosition(i, gen);
         }
+
+        return individual;
     }
 }

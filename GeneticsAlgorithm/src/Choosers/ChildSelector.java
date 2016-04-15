@@ -1,11 +1,11 @@
 package Choosers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
 
 /**
  * Created by sanczo on 2016-03-15.
  */
 public interface ChildSelector{
 
-    Colloring selectChild(Colloring firstChild,Colloring secondChild);
+    Individual selectChild(Individual firstChild, Individual secondChild);
 }

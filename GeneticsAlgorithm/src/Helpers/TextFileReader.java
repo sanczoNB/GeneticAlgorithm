@@ -1,6 +1,6 @@
 package Helpers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ public class TextFileReader {
 
     public List<String> ReadFileAndGiveListOfRows()
     {
-        EndConnection();
         CreateBufferedReader();
         List<String> listOfRows = new ArrayList<>();
         if(reader != null)
@@ -46,18 +45,20 @@ public class TextFileReader {
 
             try {
                 SkipFirstNLines(4,reader);
-                while((s = reader.readLine()).startsWith("n"))
+                while((s = reader.readLine()).startsWith("n") == false)
                     listOfRows.add(s);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        EndConnection();
+
         return listOfRows;
     }
 
-    public List<String> giveListOfColorNumberForEachVertex()
+    public List<String> giveListOfColorsNumberForEachVertex()
     {
-        EndConnection();
         CreateBufferedReader();
         List<String> listOfColorNumberForEachVertex = new ArrayList<>();
         if(reader != null)
@@ -74,6 +75,9 @@ public class TextFileReader {
                 e.printStackTrace();
             }
         }
+
+        EndConnection();
+
         return listOfColorNumberForEachVertex;
 
     }
@@ -103,7 +107,7 @@ public class TextFileReader {
         return color;
     }
 
-    public Colloring readColoring()
+    public Individual readColoring()
     {
         ArrayList<Integer> colors = new ArrayList<>();
         String s;
@@ -120,13 +124,13 @@ public class TextFileReader {
     }
 
 
-    public Colloring convertListOfColorsToColloring(ArrayList<Integer> colors){
-        Colloring colloring = new Colloring(colors.size());
+    public Individual convertListOfColorsToColloring(ArrayList<Integer> colors){
+        Individual individual = new Individual(colors.size());
         for (int i =0; i < colors.size() ;i++)
         {
-            colloring.setColorAtPosition(i, colors.get(i));
+            individual.setColorAtPosition(i, colors.get(i));
         }
-        return colloring;
+        return individual;
     }
 
 }

@@ -1,6 +1,7 @@
 package Mutatet;
 
-import Genetic.Colloring;
+import Genetic.AlgorithmParameters;
+import Genetic.Individual;
 import Helpers.RandomHelper;
 
 /**
@@ -9,6 +10,6 @@ import Helpers.RandomHelper;
 public class RandomMutate implements Mutating {
     @Override
     public int mutate(int oldColor) {
-        return RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(Colloring.colorsNumber);
+        return RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(AlgorithmParameters.getInstance().getMaxUsedColor()/2) + 1;
     }
 }

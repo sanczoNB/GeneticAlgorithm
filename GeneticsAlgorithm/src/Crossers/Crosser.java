@@ -1,11 +1,12 @@
 package Crossers;
 
-import Genetic.Colloring;
+import Genetic.Individual;
+import org.javatuples.Pair;
 
 /**
  * Created by sanczo on 2016-03-12.
  */
 public interface Crosser {
 
-    Colloring cross(Colloring firstParent, Colloring secondParent);
+    Pair<Individual, Individual> cross(Individual firstParent, Individual secondParent);
 }
