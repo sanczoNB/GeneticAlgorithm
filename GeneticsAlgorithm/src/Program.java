@@ -8,6 +8,7 @@ import Initialization.RandomInitializer;
 import Mutatet.RandomMutate;
 import MyGraph.GraphMaker;
 import MyGraph.IGraphService;
+import MyGraph.VertexOrder;
 
 import java.lang.reflect.Proxy;
 import java.time.Duration;
@@ -62,10 +63,29 @@ public class Program {
 
         System.out.println("Dla prostego, cztero-wezwolego grafu przykladowe zakodowane rozwiazanie daje " + simpleGraphExampleSolution);
 
+/*        greedyResearch("GEOM20", 10000);
+        greedyResearch("GEOM20a", 10000);
+        greedyResearch("GEOM70", 10000);
+        greedyResearch("GEOM70a", 10000);
+        greedyResearch("GEOM120", 10000);
+        greedyResearch("GEOM120a", 10000);*/
+
+        Program instance = new Program("GEOM20a");
+
+        int[] baseIndividual = new int[100];
+
+        for (int i = 0; i < baseIndividual.length; i++)
+        {
+            baseIndividual[i] = 1;
+        }
+
+        AlgorithmParameters.getInstance().setMaxUsedColor(201);
+        int result = instance.graph.ColorGraph(baseIndividual);
+
+        System.out.println("Dla samych jedynek " + result);
 
 
-
-        Program programInstance = new Program("GEOM20");
+   /*     Program programInstance = new Program("GEOM20");
 
         Population p = new Population(programInstance.graph);
 
@@ -97,7 +117,7 @@ public class Program {
 
         System.out.println("Funkcja kolorowania zostala wywolana az " + programInstance.timeKepper.getCounter());
 
-        System.out.print("Koniec");
+        System.out.print("Koniec");*/
 
 
 
@@ -127,4 +147,96 @@ public class Program {
         param.setAverageTournamentSize(5.4);
 
     }
+
+
+    public static void greedyResearch(String graphName, int repeat){
+
+        TextFileWriter toFileWriter = new TextFileWriter("greedyResearch/"+graphName+"greedyResearch.txt");
+
+        Program instance = new Program(graphName);
+        int greedyResult;
+        int[] allResults = new int[repeat];
+
+
+        instance.orderGraphVertexesBy(VertexOrder.ById);
+        greedyResult = instance.takeGreedyOnGraph();
+        String info = "Greedy bez zmiany kolejnoœci " + greedyResult;
+        System.out.println(info);
+        toFileWriter.println(info);
+
+
+        instance.orderGraphVertexesBy(VertexOrder.ByDegreeAscent);
+        greedyResult = instance.takeGreedyOnGraph();
+        info = "Greedy, wierzcholki uporzadkowane stopniem rosnaco " + greedyResult;
+        System.out.println(info);
+        toFileWriter.println(info);
+
+        instance.orderGraphVertexesBy(VertexOrder.ByDegreeDescent);
+        greedyResult = instance.takeGreedyOnGraph();
+        info = "Greedy, wierzcholki uporzadkowane stopniem malejaco " + greedyResult;
+        System.out.println(info);
+        toFileWriter.println(info);
+
+        double sum = 0;
+        int worst = Integer.MIN_VALUE;
+        int best = Integer.MAX_VALUE;
+        for(int i =0; i< repeat; i++)
+        {
+            instance.orderGraphVertexesBy(VertexOrder.ByRandom);
+            greedyResult = instance.takeGreedyOnGraph();
+
+            allResults[i] = greedyResult;
+            sum+=greedyResult;
+
+            if (greedyResult > worst)
+                worst = greedyResult;
+            if (greedyResult < best)
+                best = greedyResult;
+
+        }
+
+        double average = sum / (double)repeat;
+
+        double  odchylStand;
+
+        double sumPom = 0;
+
+        for(int value : allResults)
+        {
+            sumPom = Math.pow((value - average), 2);
+        }
+
+        odchylStand = Math.sqrt(sum / repeat);
+
+
+        info = "Dla " + repeat + " powturzen";
+        System.out.println(info);
+        toFileWriter.println(info);
+
+        info = "Dla losowej kolejnoœci uzsykano srednio " + average + " z dokladnoscia +- " + odchylStand;
+        System.out.println(info);
+        toFileWriter.println(info);
+
+        info = "Najlepsza wartosc " + best;
+        System.out.println();
+        toFileWriter.println(info);
+
+        info = "Najgorsza wartosc " + worst;
+        System.out.println(info);
+        toFileWriter.println(info);
+
+        toFileWriter.EndConnection();
+    }
+
+    public void orderGraphVertexesBy(VertexOrder order)
+    {
+        graph.orderVertexBy(order);
+    }
+
+    public int takeGreedyOnGraph()
+    {
+        return graph.GreedyColoring();
+    }
+
+
 }

@@ -77,6 +77,9 @@ public class GraphMaker {
             firstVertex.addNeighbor(secondVertex);
             firstVertex.putNeighborBandwidth(secondVertex.getId(), edgeParameters.getBandwith());
 
+            secondVertex.addNeighbor(firstVertex);
+            secondVertex.putNeighborBandwidth(firstVertex.getId(), edgeParameters.getBandwith());
+
         }
 
     }

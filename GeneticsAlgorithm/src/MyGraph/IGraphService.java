@@ -7,5 +7,6 @@ public interface IGraphService {
     int ColorGraph(int[] individual);
     void Print();
     int GreedyColoring();
+    void orderVertexBy(VertexOrder order);
 
 }

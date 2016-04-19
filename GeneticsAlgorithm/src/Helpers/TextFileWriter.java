@@ -95,4 +95,8 @@ public class TextFileWriter  {
         writer.print("]\n");
         writer.println();
     }
+
+    public void println(String s) {
+        writer.println(s);
+    }
 }

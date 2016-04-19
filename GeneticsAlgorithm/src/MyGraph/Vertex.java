@@ -7,14 +7,14 @@ import java.util.*;
 /**
  * Created by sanczo on 2016-03-07.
  */
-public class Vertex {
+public class Vertex implements Comparable<Vertex> {
 
 
     public static int[] allAllowedColors;
 
     private int Id;
 
-   public Integer[] colors;
+    public List<Integer> colors;
 
     public List<Vertex> neighbors;
 
@@ -25,6 +25,10 @@ public class Vertex {
     private List<Integer> availableColors;
 
     private Set<Integer> banedColors;
+
+    private int priority;
+
+    private int colorsNumber;
 
     static {
         int maxAllowedColor = AlgorithmParameters.getInstance().getMaxUsedColor();
@@ -45,30 +49,17 @@ public class Vertex {
     public Vertex(int id, int colorsNumber) {
         this();
         this.Id = id;
-        colors = new Integer[colorsNumber];
+        colors = new ArrayList<>(colorsNumber);
+        this.colorsNumber = colorsNumber;
 
-    }
-
-    public Integer[] getColors() {
-      return colors;
     }
 
     /*
     Wstawia w piersze wolne miejsce na tablicy
     kolorow wybrany kolor
      */
-    public void setColor(int color) {
-        int i;
-        for (i = 0; colors[i] != null &&  i < colors.length ; i++)
-        {
-
-        }
-        if (i < colors.length)
-            colors[i] = color;
-    }
-
-    public void setColorAtPosition(int color, int position) {
-        colors[position] = color;
+    public void addColor(int color) {
+        colors.add(color);
     }
 
     public int getId() {
@@ -148,7 +139,7 @@ public class Vertex {
     }
 
     public int getColorsNumber() {
-        return colors.length;
+        return colorsNumber;
     }
 
     @Override
@@ -176,9 +167,23 @@ public class Vertex {
 
     public void resetColor()
     {
-        for (int i = 0;i < colors.length ;i++)
-        {
-            colors[i] = null;
-        }
+        colors.clear();
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    @Override
+    public int compareTo(Vertex o) {
+        return Integer.compare(priority, o.priority);
+    }
+
+    public boolean isTotalyColored() {
+        return colorsNumber == colors.size();
+    }
+
+    public void clearBanedColors() {
+         banedColors.clear();
     }
 }

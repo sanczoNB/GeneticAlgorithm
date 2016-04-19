@@ -11,6 +11,7 @@ import java.util.*;
  * Created by sanczo on 2016-03-07.
  */
 public class Graph implements IGraphService{
+
     public List<Vertex> vertexes;
 
     public List<Edge> edges;
@@ -98,6 +99,9 @@ public class Graph implements IGraphService{
 
     public int GreedyColoring()
     {
+        this.resetColors();
+        clearBanedColors();
+
         int maxUsedColor = -1;
 
         for(Vertex vertex : vertexes )
@@ -105,7 +109,7 @@ public class Graph implements IGraphService{
             for(int i = 0; i < vertex.getColorsNumber(); i++)
             {
                 int color = vertex.getFirstNotUsedColor();
-                vertex.setColor(color);
+                vertex.addColor(color);
                 if (color > maxUsedColor)
                     maxUsedColor = color;
 
@@ -114,8 +118,10 @@ public class Graph implements IGraphService{
 
                 for(Vertex neighbor : vertex.neighbors)
                 {
-                    intervalToBan = computeIntervalToBan(color, vertex.neighborsBandwidth.get(neighbor.getId()));
-                    neighbor.banColorFromGivenInterval(intervalToBan.getValue0(), intervalToBan.getValue1());
+                    if(neighbor.isTotalyColored() == false) {
+                        intervalToBan = computeIntervalToBan(color, vertex.neighborsBandwidth.get(neighbor.getId()));
+                        neighbor.banColorFromGivenInterval(intervalToBan.getValue0(), intervalToBan.getValue1());
+                    }
                 }
             }
         }
@@ -124,9 +130,13 @@ public class Graph implements IGraphService{
         return maxUsedColor;
     }
 
+    private void clearBanedColors() {
+        vertexes.forEach(MyGraph.Vertex::clearBanedColors);
+    }
+
     public int ColorGraph(int[] individual)
     {
-       // this.resetColors();
+        this.resetColors();
         initializeAvailableColors(AlgorithmParameters.getInstance().getMaxUsedColor());
         int maxUsedColor = -1;
         int index = 0;
@@ -138,8 +148,8 @@ public class Graph implements IGraphService{
             {
                 int color = vertex.getNAvailableColor(individual[index]);
                 if (color != -1) {
-                    //vertex.setColor(color);
-                    vertex.setColorAtPosition(color, i);
+                    //vertex.addColor(color);
+                    vertex.addColor(color);
                     if (color > maxUsedColor)
                         maxUsedColor = color;
 
@@ -147,8 +157,10 @@ public class Graph implements IGraphService{
                     vertex.unavailableColorFromGivenInterval(intervalToBan.getValue0(), intervalToBan.getValue1());
 
                     for (Vertex neighbor : vertex.neighbors) {
-                        intervalToBan = computeIntervalToBan(color, vertex.neighborsBandwidth.get(neighbor.getId()));
-                        neighbor.unavailableColorFromGivenInterval(intervalToBan.getValue0(), intervalToBan.getValue1());
+                        if(neighbor.isTotalyColored() == false) {
+                            intervalToBan = computeIntervalToBan(color, vertex.neighborsBandwidth.get(neighbor.getId()));
+                            neighbor.unavailableColorFromGivenInterval(intervalToBan.getValue0(), intervalToBan.getValue1());
+                        }
                     }
                     index++;
                     vertex.resetColor();
@@ -271,6 +283,47 @@ public class Graph implements IGraphService{
         {
             v.resetColor();
         }
+    }
+
+    public void sortVertexById()
+    {
+        vertexes.stream().forEach(v -> v.setPriority(v.getId()));
+
+        Collections.sort(vertexes);
+    }
+
+    public void sortVertexByDegreeAscent(){
+        vertexes.stream().forEach(v -> v.setPriority(v.neighborNumber()));
+
+        Collections.sort(vertexes);
+    }
+
+    public void sortVertexByDegreeDescent() {
+        vertexes.stream().forEach(v -> v.setPriority(v.neighborNumber()));
+
+        Collections.sort(vertexes, Collections.reverseOrder());
+    }
+
+    public void shuffleVertex() {
+        Collections.shuffle(vertexes);
+    }
+
+    public void orderVertexBy(VertexOrder order) {
+            switch (order){
+
+                case ById:
+                    sortVertexById();
+                    break;
+                case ByDegreeAscent:
+                    sortVertexByDegreeAscent();
+                    break;
+                case ByDegreeDescent:
+                    sortVertexByDegreeDescent();
+                    break;
+                case ByRandom:
+                    shuffleVertex();
+                    break;
+            }
     }
 
 }
