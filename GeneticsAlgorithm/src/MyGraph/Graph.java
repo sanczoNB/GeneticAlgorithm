@@ -38,7 +38,7 @@ public class Graph implements IGraphService{
 
     public void SetColoring(Individual colorShema) {
        /* for (int i = 0; i < Individual.getNumberOfGens(); i++) {
-            vertexes.get(i).setColors(colorShema.getColorOnPosition(i));
+            vertexes.get(i).setColors(colorShema.getGenOnPosition(i));
         }*/
     }
 
@@ -137,7 +137,7 @@ public class Graph implements IGraphService{
     public int ColorGraph(int[] individual)
     {
         this.resetColors();
-        initializeAvailableColors(AlgorithmParameters.getInstance().getMaxUsedColor());
+        initializeAvailableColors(AlgorithmParameters.getInstance().getMaxGenValue());
         int maxUsedColor = -1;
         int index = 0;
         boolean wrongColoring = false;
@@ -173,7 +173,7 @@ public class Graph implements IGraphService{
                 break;
         }
         if (wrongColoring)
-            maxUsedColor = AlgorithmParameters.getInstance().getMaxUsedColor()+1;
+            maxUsedColor = AlgorithmParameters.getInstance().getMaxGenValue()+1;
         return maxUsedColor;
     }
 
@@ -304,6 +304,11 @@ public class Graph implements IGraphService{
         Collections.sort(vertexes, Collections.reverseOrder());
     }
 
+    public void sortByEarlierEstablishedPriority()
+    {
+        Collections.sort(vertexes);
+    }
+
     public void shuffleVertex() {
         Collections.shuffle(vertexes);
     }
@@ -323,7 +328,19 @@ public class Graph implements IGraphService{
                 case ByRandom:
                     shuffleVertex();
                     break;
+                case ByEarlierEstablishedPriority:
+                    sortByEarlierEstablishedPriority();
+                    break;
             }
+    }
+
+    public void establishVertexPriority(int priorities[])
+    {
+        sortVertexById();
+        for(int i = 0; i < vertexes.size(); i++)
+        {
+            vertexes.get(i).setPriority(priorities[i]);
+        }
     }
 
 }

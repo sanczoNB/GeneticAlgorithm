@@ -28,7 +28,7 @@ public class AlgorithmParameters {
 
     private Initializer initializer;
 
-    private int maxUsedColor;
+    private int maxGenValue;
 
     private int maxNumberOfIterationsWithoutProgress;
 
@@ -115,12 +115,12 @@ public class AlgorithmParameters {
         this.initializer = initializer;
     }
 
-    public int getMaxUsedColor() {
-        return maxUsedColor;
+    public int getMaxGenValue() {
+        return maxGenValue;
     }
 
-    public void setMaxUsedColor(int maxUsedColor) {
-        this.maxUsedColor = maxUsedColor;
+    public void setMaxGenValue(int maxGenValue) {
+        this.maxGenValue = maxGenValue;
     }
 
     public int getMaxNumberOfIterationsWithoutProgress() {

@@ -57,7 +57,7 @@ public class GraphMaker {
             addEdge(edgeParameters);
 
         }
-        InformColloringShemaAboutVertexNumber(howManyColorsToFind);
+        InformIndividualHowLongShouldBeGenotyp(howManyColorsToFind);
 
     }
 
@@ -113,8 +113,8 @@ public class GraphMaker {
         }
     }
 
-    private void InformColloringShemaAboutVertexNumber(int numberOfVertex) {
-        Individual.setNumberOfGens(numberOfVertex);
+    private void InformIndividualHowLongShouldBeGenotyp(int lengthOfGenotyp) {
+        Individual.setNumberOfGens(lengthOfGenotyp);
     }
 
 

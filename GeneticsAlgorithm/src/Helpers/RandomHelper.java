@@ -14,6 +14,16 @@ public class RandomHelper {
         return random.nextInt(n);
     }
 
+
+    public static int giveRandomIntegerFromGivenInterval(int minValue, int maxValue)
+    {
+        int moveToZeroMaxValue = maxValue - minValue;
+
+        int movedToZeroRandom = random.nextInt(moveToZeroMaxValue + 1);
+
+        return movedToZeroRandom + minValue;
+    }
+
     public static boolean IfItHappenWithAskedProbability(double probability)
     {
         return Math.random() < probability;

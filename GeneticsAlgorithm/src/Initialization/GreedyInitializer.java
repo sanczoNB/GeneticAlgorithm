@@ -19,7 +19,7 @@ public class GreedyInitializer implements Initializer {
         int[] colloringByGreedy = graph.giveColloringByGreedy();
         for(int i = 0; i< Individual.getNumberOfGens(); i++)
         {
-            individual.setColorAtPosition(i, colloringByGreedy[i]);
+            individual.setGenAtPosition(i, colloringByGreedy[i]);
         }
         return individual;
     }

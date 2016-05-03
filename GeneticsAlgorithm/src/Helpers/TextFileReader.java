@@ -128,7 +128,7 @@ public class TextFileReader {
         Individual individual = new Individual(colors.size());
         for (int i =0; i < colors.size() ;i++)
         {
-            individual.setColorAtPosition(i, colors.get(i));
+            individual.setGenAtPosition(i, colors.get(i));
         }
         return individual;
     }

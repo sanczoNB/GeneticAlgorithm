@@ -9,28 +9,20 @@ import Helpers.RandomHelper;
  */
 public class OneStepMutate implements Mutating {
 
-   /* Je¿eli jesteœmy na krawedzi magicznie przeskakujemy na drug¹ stronê
-    @Override
-    public int mutate(int oldColor) {
-        int newColor;
+    private int maxValue = -1;
 
-        int step;
+    private int minValue = -1;
 
-        int addOrSub = Helpers.RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(2);
 
-        if(addOrSub == 0)
-            step = 1;
-        else step = -1;
-
-        newColor = (Genetic.Genetic.Individual.colorsNumber + oldColor + step) % Genetic.Genetic.Individual.colorsNumber;
-
-        return newColor;
-    }
-    */
 
     @Override
-    public int mutate(int oldColor) {
-        int newColor;
+    public int mutate(int orginalGen) {
+        if (maxValue == -1)
+            throw new IllegalArgumentException("Not set maxValue for OneStepMutate");
+        if (minValue == -1)
+            throw new IllegalArgumentException("Not set minValue for OneStepMutate");
+
+        int genAfterMutations;
 
         int step;
 
@@ -40,16 +32,23 @@ public class OneStepMutate implements Mutating {
             step = 1;
         else step = -1;
 
-        newColor = oldColor + step;
+        genAfterMutations = orginalGen + step;
 
-        if (newColor == 0)
-            newColor = oldColor;
+        if (genAfterMutations < minValue)
+            genAfterMutations = minValue;
 
-        if (newColor == AlgorithmParameters.getInstance().getMaxUsedColor())
-            newColor = oldColor;
+        if (genAfterMutations > maxValue)
+            genAfterMutations = maxValue;
 
 
-        return newColor;
+        return genAfterMutations;
     }
 
+    public void setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    public void setMinValue(int minValue) {
+        this.minValue = minValue;
+    }
 }

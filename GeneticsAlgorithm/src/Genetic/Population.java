@@ -2,9 +2,10 @@ package Genetic;
 
 import Comperators.SortByFitnessComparator;
 import Exceptions.FlatPopulationException;
+import Helpers.PermutationConverter;
 import Helpers.RandomHelper;
-import MyGraph.Graph;
 import MyGraph.IGraphService;
+import MyGraph.VertexOrder;
 import org.javatuples.Pair;
 
 
@@ -17,7 +18,7 @@ public class Population {
 
     public List<Individual> population;
 
-    private IGraphService graph;
+    private IGraphService graphService;
 
     private Individual bestIndividual;
 
@@ -39,12 +40,14 @@ public class Population {
 
     private List<Map<Integer, Integer>> mapsWhichShowWhatGenAppearOnCertainPosition;
 
-    //private TextFileWriter textFileWriter;
+    private int populationNumber;
+
+
 
 
 
     public Population(IGraphService graph) {
-        this.graph = graph;
+        this.graphService = graph;
         parameters = AlgorithmParameters.getInstance();
         population = new ArrayList<>(parameters.getSizeOfPopulation());
         bannedFitness = new HashSet<>();
@@ -76,9 +79,9 @@ public class Population {
             Individual individual;
             do {
                 individual = parameters.getInitializer().Init();
-                individual.setFitness(graph.ColorGraph(individual.colors));
-            }while (individual.getFitness() == parameters.getMaxUsedColor()+1 || bannedFitness.contains(individual.getFitness()));
-            countFitnessFault(individual.getFitness());
+                setFitness(individual);
+            }while (bannedFitness.contains(individual.getFitness()));
+            countHowManyIsIndividualWithTheSameFitness(individual.getFitness());
             population.add(individual);
         }
 
@@ -91,7 +94,7 @@ public class Population {
         resetFitnessSum();
 
         for (Individual individual : population) {
-           /* int fitness = graph.colorGraph(individual.colors);
+           /* int fitness = graphService.colorGraph(individual.gens);
             individual.setFitness(fitness);*/
 
             if (checkIsItTheBestIndividual(individual)) {
@@ -227,7 +230,7 @@ public class Population {
         population = nextPopulation;
 
        // asigneMapsOfFrostbite();
-       // System.out.println("Frostbite asigne");
+        System.out.println("Frostbite asigne");
 
 
 
@@ -236,11 +239,10 @@ public class Population {
     private void tryAddChildToPopulation(List<Individual> nextGeneration ,Individual child) {
         int counter = 0;
 
-        child.setFitness(graph.ColorGraph(child.colors));
+        setFitness(child);
 
         boolean isDuplicate = isDuplicate(nextGeneration, child);
         boolean shouldBeBanned = bannedFitness.contains(child.getFitness());
-        boolean incorrectIndividual = child.getFitness() == parameters.getMaxUsedColor()+1;
 
   /*      while ((isDuplicate
                 || incorrectIndividual
@@ -249,9 +251,9 @@ public class Population {
         {
             child.mutate(frostbite);
             isDuplicate = isDuplicate(nextGeneration, child);
-            child.setFitness(graph.colorGraph(child.colors));
+            child.setFitness(graphService.colorGraph(child.gens));
             shouldBeBanned = bannedFitness.contains(child.getFitness());
-            incorrectIndividual = child.getFitness() == parameters.getMaxUsedColor()+1;
+            incorrectIndividual = child.getFitness() == parameters.getMaxGenValue()+1;
             counter++;
 
             //report(isDuplicate, shouldBeBanned, incorrectIndividual);
@@ -265,16 +267,16 @@ public class Population {
             {
                 child = parameters.getInitializer().Init();
                 isDuplicate = isDuplicate(nextGeneration, child);
-                child.setFitness(graph.colorGraph(child.colors));
-                incorrectIndividual = child.getFitness() == parameters.getMaxUsedColor()+1;
+                child.setFitness(graphService.colorGraph(child.gens));
+                incorrectIndividual = child.getFitness() == parameters.getMaxGenValue()+1;
                 //report(isDuplicate, shouldBeBanned, incorrectIndividual);
             }
         }*/
 
         if (isDuplicate)
-            child.setFitness(parameters.getMaxUsedColor()+1);
+            child.setFitness(Integer.MAX_VALUE);
 
-        countFitnessFault(child.getFitness());
+        countHowManyIsIndividualWithTheSameFitness(child.getFitness());
         nextGeneration.add(child);
     }
 
@@ -303,7 +305,7 @@ public class Population {
         for(int i = 0; i < nextPopulation.size() && isDuplicate == false; i++)
         {
             Individual fromPopulation = nextPopulation.get(i);
-            isDuplicate = Arrays.equals(fromPopulation.colors, child.colors);
+            isDuplicate = Arrays.equals(fromPopulation.gens, child.gens);
         }
         return isDuplicate;
     }
@@ -355,8 +357,8 @@ public class Population {
         else
             children = new Pair<>(Individual.deepCloning(firstParent), Individual.deepCloning(secondParent));
 
-        children.getValue0().setFitness(graph.ColorGraph(children.getValue0().colors));
-        children.getValue1().setFitness(graph.ColorGraph(children.getValue1().colors));
+        setFitness(children.getValue0());
+        setFitness(children.getValue1());
 
         return children;
     }
@@ -371,7 +373,7 @@ public class Population {
         for (individualPosition = 0; individualPosition < nextGeneration.size(); individualPosition++)
         {
             individual = nextGeneration.get(individualPosition);
-            countFitnessFault(individual.getFitness());
+            countHowManyIsIndividualWithTheSameFitness(individual.getFitness());
         }
         return nextGeneration;
     }
@@ -380,8 +382,8 @@ public class Population {
     private Individual Mutate(Individual individual) {
         for (int i = 0; i < Individual.getNumberOfGens(); i++) {
             if (IsGeneShouldBeMutatet()) {
-                int newValueOfGene = parameters.getMutating().mutate(individual.getColorOnPosition(i));
-                individual.assignColor(i, newValueOfGene);
+                int newValueOfGene = parameters.getMutating().mutate(individual.getGenOnPosition(i));
+                individual.assignGen(i, newValueOfGene);
             }
         }
         return individual;
@@ -414,7 +416,7 @@ public class Population {
         fitnessToBan.clear();
     }
 
-    private void countFitnessFault(int fitness){
+    private void countHowManyIsIndividualWithTheSameFitness(int fitness){
         if (! bannedFitness.contains(fitness))
         {
             Integer numberOfFault = fitnessToBan.get(fitness);
@@ -456,11 +458,11 @@ public class Population {
         for (int i = 0; i < frostbite.length; i++)
         {
             boolean onlyOneValueOnThisPosition = true;
-            int genOfFirstIndividualONiPosition = population.get(0).colors[i];
+            int genOfFirstIndividualONiPosition = population.get(0).gens[i];
             int j = 1;
             while (j < population.size() && onlyOneValueOnThisPosition)
             {
-                onlyOneValueOnThisPosition = genOfFirstIndividualONiPosition == population.get(j).colors[i];
+                onlyOneValueOnThisPosition = genOfFirstIndividualONiPosition == population.get(j).gens[i];
             }
             frostbite[i] = onlyOneValueOnThisPosition;
         }
@@ -472,7 +474,7 @@ public class Population {
         {
             for (int j = 0;j < population.size(); j++)
             {
-                int gen = population.get(j).colors[i];
+                int gen = population.get(j).gens[i];
                 Integer appearOfGen = mapsWhichShowWhatGenAppearOnCertainPosition.get(i).get(gen);
                 if (appearOfGen == null) {
                     mapsWhichShowWhatGenAppearOnCertainPosition.get(i).put(gen,1);
@@ -492,5 +494,25 @@ public class Population {
         {
             mapOfFrostbite.clear();
         }
+    }
+
+    public void setFitness(Individual individual)
+    {
+        int fitness;
+        int[] permutation = PermutationConverter.getInstance().covertToPerm(individual.gens);
+        graphService.establishVertexPriority(permutation);
+        graphService.orderVertexBy(VertexOrder.ByEarlierEstablishedPriority);
+
+        fitness = graphService.GreedyColoring();
+        individual.setFitness(fitness);
+    }
+
+    public void incrematePopulationNumber()
+    {
+        populationNumber++;
+    }
+
+    public int getPopulationNumber() {
+        return populationNumber;
     }
 }

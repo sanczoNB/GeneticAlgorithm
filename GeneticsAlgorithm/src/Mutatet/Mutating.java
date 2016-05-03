@@ -7,4 +7,8 @@ public interface Mutating {
 
     int mutate(int oldColor);
 
+    void setMaxValue(int maxValue);
+
+    void setMinValue(int minValue);
+
 }

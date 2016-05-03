@@ -15,10 +15,11 @@ public class RandomInitializer implements Initializer {
         Individual individual = new Individual();
         for(int i =0; i < individual.getNumberOfGens(); i++)
         {
-            int gen = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(AlgorithmParameters.getInstance().getMaxUsedColor())+1;
-            individual.setColorAtPosition(i, gen);
+            int gen = RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(AlgorithmParameters.getInstance().getMaxGenValue())+1;
+            individual.setGenAtPosition(i, gen);
         }
 
         return individual;
     }
+
 }

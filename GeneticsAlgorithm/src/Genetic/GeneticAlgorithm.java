@@ -1,6 +1,7 @@
 package Genetic;
 
 import Exceptions.FlatPopulationException;
+import Helpers.PopulationPrinter;
 import Helpers.ResearchData;
 import Helpers.TextFileWriter;
 
@@ -10,6 +11,8 @@ import Helpers.TextFileWriter;
 public class GeneticAlgorithm {
 
     private Population population;
+
+    private PopulationPrinter populationPrinter;
 
 
 
@@ -27,6 +30,7 @@ public class GeneticAlgorithm {
         this.population = population;
         this.textFileWriter = textFileWriter;
         param = AlgorithmParameters.getInstance();
+        populationPrinter = new PopulationPrinter("Population logs");
     }
 
     public GeneticAlgorithmResult SearchSolutionGraphColoringProblemByGeneticAlgorithm ()
@@ -35,18 +39,21 @@ public class GeneticAlgorithm {
         try {
             setFirstGeneration();
             textFileWriter.writeHeader();
+            populationPrinter.printPopulation(population);
             while (checkStopConditions() == false)
             {
                 population.selectNewPopulation();
                 population.CountPopulationParameters();
                 iterationWithoutProgress++;
+                population.incrematePopulationNumber();
+
                 if (population.isProgress())
                 {
                     iterationWithoutProgress = 0;
                     population.setProgress(false);
                     System.out.println("Make progress ");
                 }
-
+                populationPrinter.printPopulation(population);
                 textFileWriter.write(new ResearchData(iterationWithoutProgress, population.getBestIndividual().getFitness(), population.getFitnessAverage(), population.getWorstIndividual().getFitness()));
 
             }
@@ -59,7 +66,6 @@ public class GeneticAlgorithm {
     }
 
     public void setFirstGeneration() throws FlatPopulationException {
-     //   population.fillPopulation();
         population.initialPopulation();
         population.CountPopulationParameters();
     }

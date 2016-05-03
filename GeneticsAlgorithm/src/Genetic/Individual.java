@@ -1,6 +1,11 @@
 package Genetic;
 
+import Helpers.PermutationConverter;
 import Helpers.RandomHelper;
+import MyGraph.Graph;
+import MyGraph.GraphMaker;
+import MyGraph.IGraphService;
+import MyGraph.VertexOrder;
 
 /**
  * Created by sanczo on 2016-03-10.
@@ -9,7 +14,7 @@ public class Individual {
 
 
 
-    public int[] colors;
+    public int[] gens;
 
     private int fitness = -1;
 
@@ -26,10 +31,10 @@ public class Individual {
     }
 
     public Individual() {
-        colors = new int[Individual.numberOfGens];
+        gens = new int[Individual.numberOfGens];
     }
     public Individual(int numberOfGens){
-        colors = new int[numberOfGens];
+        gens = new int[numberOfGens];
     }
 
     public static void setNumberOfGens(int numberOfGens)
@@ -49,6 +54,7 @@ public class Individual {
     }
 
     public void setFitness(int fitness) {
+
         this.fitness = fitness;
     }
 
@@ -68,14 +74,14 @@ public class Individual {
         this.rouletteRating = rouletteRating;
     }
 
-    public void assignColor(int index, int color)
+    public void assignGen(int index, int color)
     {
-        colors[index] = color;
+        gens[index] = color;
     }
 
-    public int getColorOnPosition(int index)
+    public int getGenOnPosition(int index)
     {
-        return colors[index];
+        return gens[index];
     }
 
     public void print() {
@@ -91,19 +97,14 @@ public class Individual {
 
         for(int i =0;i < numberOfGens;i++)
         {
-            deepClone.assignColor(i, protoplasta.getColorOnPosition(i));
+            deepClone.assignGen(i, protoplasta.getGenOnPosition(i));
         }
         return deepClone;
     }
 
-    public void setColorAtPosition(int position, int color)
+    public void setGenAtPosition(int position, int color)
     {
-        colors[position] = color;
-    }
-
-    public int getNumberOfVertex()
-    {
-        return colors.length;
+        gens[position] = color;
     }
 
 
@@ -112,14 +113,18 @@ public class Individual {
         int frostMutationCounter = 1;
         int casualMutationCounter = 1;
 
-        for (int i = 0; i < colors.length; i++)
+        for (int i = 0; i < gens.length; i++)
         {
             boolean isFrozenGen = frostbite[i];
             double posibilityOfMutation = isFrozenGen ? param.getChanceToMutationFrostGen() / frostMutationCounter : param.getChanceToMutationCasualGen() / casualMutationCounter;
 
             if (RandomHelper.IfItHappenWithAskedProbability(posibilityOfMutation))
             {
-                colors[i] = AlgorithmParameters.getInstance().getMutating().mutate(colors[i]);
+                int maxValue = Individual.getNumberOfGens() - (i + 1);
+                param.getMutating().setMinValue(0);
+                param.getMutating().setMaxValue(maxValue);
+
+                gens[i] = param.getMutating().mutate(gens[i]);
             }
             if (isFrozenGen)
                 frostMutationCounter++;

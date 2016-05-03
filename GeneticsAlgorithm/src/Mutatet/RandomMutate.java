@@ -8,8 +8,22 @@ import Helpers.RandomHelper;
  * Created by sanczo on 2016-03-12.
  */
 public class RandomMutate implements Mutating {
+
+    private int maxValue;
+
+    private int minValue;
+
     @Override
     public int mutate(int oldColor) {
-        return RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(AlgorithmParameters.getInstance().getMaxUsedColor()/2) + 1;
+        return RandomHelper.giveRandomIntegerFromGivenInterval(minValue, maxValue);
+    }
+
+    public void setMaxValue(int maxValue) {
+        this.maxValue = maxValue;
+    }
+
+    @Override
+    public void setMinValue(int minValue) {
+        this.minValue = minValue;
     }
 }

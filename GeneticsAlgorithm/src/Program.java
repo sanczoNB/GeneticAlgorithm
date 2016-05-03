@@ -4,7 +4,7 @@ import Exceptions.FlatPopulationException;
 import Genetic.*;
 import Helpers.ProxyHandlerToMeasureTime;
 import Helpers.TextFileWriter;
-import Initialization.RandomInitializer;
+import Initialization.ReversePermutationInitializer;
 import Mutatet.RandomMutate;
 import MyGraph.GraphMaker;
 import MyGraph.IGraphService;
@@ -50,42 +50,8 @@ public class Program {
 
     public static void main(String[] args) throws FlatPopulationException {
 
-        Program simpleInstance = new Program("GEOM4");
 
-        int maxUsedColorForSimpleGraph = simpleInstance.graph.GreedyColoring();
-        System.out.println("Dla prostego, cztero wezwolego grafu gredu znjaduje " + maxUsedColorForSimpleGraph);
-
-        int[] exampleIndividual = {4, 3, 3, 2, 1, 3, 1, 1};
-
-        AlgorithmParameters.getInstance().setMaxUsedColor(12);
-
-        int simpleGraphExampleSolution = simpleInstance.graph.ColorGraph(exampleIndividual);
-
-        System.out.println("Dla prostego, cztero-wezwolego grafu przykladowe zakodowane rozwiazanie daje " + simpleGraphExampleSolution);
-
-/*        greedyResearch("GEOM20", 10000);
-        greedyResearch("GEOM20a", 10000);
-        greedyResearch("GEOM70", 10000);
-        greedyResearch("GEOM70a", 10000);
-        greedyResearch("GEOM120", 10000);
-        greedyResearch("GEOM120a", 10000);*/
-
-        Program instance = new Program("GEOM20a");
-
-        int[] baseIndividual = new int[100];
-
-        for (int i = 0; i < baseIndividual.length; i++)
-        {
-            baseIndividual[i] = 1;
-        }
-
-        AlgorithmParameters.getInstance().setMaxUsedColor(201);
-        int result = instance.graph.ColorGraph(baseIndividual);
-
-        System.out.println("Dla samych jedynek " + result);
-
-
-   /*     Program programInstance = new Program("GEOM20");
+        Program programInstance = new Program("GEOM20");
 
         Population p = new Population(programInstance.graph);
 
@@ -93,9 +59,7 @@ public class Program {
 
         GeneticAlgorithm algorithm = new GeneticAlgorithm(p, textFileWriter);
 
-        int maxUsedColor = programInstance.graph.GreedyColoring();
-
-        AlgorithmParameters.getInstance().setMaxUsedColor(maxUsedColor);
+        AlgorithmParameters.getInstance().setMaxGenValue(Individual.getNumberOfGens()-1);
 
         programInstance.setParam();
 
@@ -117,7 +81,7 @@ public class Program {
 
         System.out.println("Funkcja kolorowania zostala wywolana az " + programInstance.timeKepper.getCounter());
 
-        System.out.print("Koniec");*/
+        System.out.print("Koniec");
 
 
 
@@ -136,14 +100,14 @@ public class Program {
         param.setMaxNumberOfIterationsWithoutProgress(200);
         param.setSizeOfPopulation(150);
         param.setChanceToCross(0.85);
-        param.setChanceToMutationCasualGen(0.2 / param.getMaxUsedColor());
-        param.setChanceToMutationFrostGen(0.5 / param.getMaxUsedColor());
+        param.setChanceToMutationCasualGen(0.2 / param.getMaxGenValue());
+        param.setChanceToMutationFrostGen(0.5 / param.getMaxGenValue());
         param.setChooser(new Tournament());
         param.setCrosser(new OnePointCross());
         param.setMutating(new RandomMutate());
-        param.setInitializer(new RandomInitializer());
-        param.setMaxNumberIndividualWithTheSameFitness(40);
-        param.setNumberOfElite(100);
+        param.setInitializer(new ReversePermutationInitializer());
+        param.setMaxNumberIndividualWithTheSameFitness(150);
+        param.setNumberOfElite(10);
         param.setAverageTournamentSize(5.4);
 
     }
@@ -160,7 +124,7 @@ public class Program {
 
         instance.orderGraphVertexesBy(VertexOrder.ById);
         greedyResult = instance.takeGreedyOnGraph();
-        String info = "Greedy bez zmiany kolejnoœci " + greedyResult;
+        String info = "Greedy bez zmiany kolejnoï¿½ci " + greedyResult;
         System.out.println(info);
         toFileWriter.println(info);
 
@@ -213,7 +177,7 @@ public class Program {
         System.out.println(info);
         toFileWriter.println(info);
 
-        info = "Dla losowej kolejnoœci uzsykano srednio " + average + " z dokladnoscia +- " + odchylStand;
+        info = "Dla losowej kolejnoï¿½ci uzsykano srednio " + average + " z dokladnoscia +- " + odchylStand;
         System.out.println(info);
         toFileWriter.println(info);
 

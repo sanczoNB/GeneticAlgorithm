@@ -8,5 +8,6 @@ public interface IGraphService {
     void Print();
     int GreedyColoring();
     void orderVertexBy(VertexOrder order);
+    void establishVertexPriority(int[] priorities);
 
 }

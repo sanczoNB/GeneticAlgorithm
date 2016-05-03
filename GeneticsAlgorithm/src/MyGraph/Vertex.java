@@ -31,7 +31,7 @@ public class Vertex implements Comparable<Vertex> {
     private int colorsNumber;
 
     static {
-        int maxAllowedColor = AlgorithmParameters.getInstance().getMaxUsedColor();
+        int maxAllowedColor = AlgorithmParameters.getInstance().getMaxGenValue();
         allAllowedColors = new int[maxAllowedColor];
         for(int i = 0; i < maxAllowedColor; i++)
         {

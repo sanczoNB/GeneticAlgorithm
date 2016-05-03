@@ -5,5 +5,5 @@ package MyGraph;
  */
 public enum VertexOrder {
 
-    ById, ByDegreeAscent, ByDegreeDescent, ByRandom
+    ById, ByDegreeAscent, ByDegreeDescent, ByRandom, ByEarlierEstablishedPriority
 }
