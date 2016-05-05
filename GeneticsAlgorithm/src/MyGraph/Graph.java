@@ -38,7 +38,7 @@ public class Graph implements IGraphService{
 
     public void SetColoring(Individual colorShema) {
        /* for (int i = 0; i < Individual.getNumberOfGens(); i++) {
-            vertexes.get(i).setColors(colorShema.getGenOnPosition(i));
+            vertexes.get(i).setColors(colorShema.getGenAtPosition(i));
         }*/
     }
 

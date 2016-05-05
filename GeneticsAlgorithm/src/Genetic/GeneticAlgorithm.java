@@ -65,6 +65,10 @@ public class GeneticAlgorithm {
         }
     }
 
+    public void nextGeneration() {
+        population.selectNewPopulation();
+    }
+
     public void setFirstGeneration() throws FlatPopulationException {
         population.initialPopulation();
         population.CountPopulationParameters();

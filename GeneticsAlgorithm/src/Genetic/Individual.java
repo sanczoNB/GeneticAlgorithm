@@ -1,11 +1,6 @@
 package Genetic;
 
-import Helpers.PermutationConverter;
 import Helpers.RandomHelper;
-import MyGraph.Graph;
-import MyGraph.GraphMaker;
-import MyGraph.IGraphService;
-import MyGraph.VertexOrder;
 
 /**
  * Created by sanczo on 2016-03-10.
@@ -79,7 +74,7 @@ public class Individual {
         gens[index] = color;
     }
 
-    public int getGenOnPosition(int index)
+    public int getGenAtPosition(int index)
     {
         return gens[index];
     }
@@ -97,7 +92,7 @@ public class Individual {
 
         for(int i =0;i < numberOfGens;i++)
         {
-            deepClone.assignGen(i, protoplasta.getGenOnPosition(i));
+            deepClone.assignGen(i, protoplasta.getGenAtPosition(i));
         }
         return deepClone;
     }

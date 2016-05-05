@@ -382,7 +382,7 @@ public class Population {
     private Individual Mutate(Individual individual) {
         for (int i = 0; i < Individual.getNumberOfGens(); i++) {
             if (IsGeneShouldBeMutatet()) {
-                int newValueOfGene = parameters.getMutating().mutate(individual.getGenOnPosition(i));
+                int newValueOfGene = parameters.getMutating().mutate(individual.getGenAtPosition(i));
                 individual.assignGen(i, newValueOfGene);
             }
         }
@@ -515,4 +515,14 @@ public class Population {
     public int getPopulationNumber() {
         return populationNumber;
     }
+
+    public int size(){
+        return population.size();
+    }
+
+    public Individual getIndividualAtPosition(int index) {
+        return population.get(index);
+    };
+
+
 }

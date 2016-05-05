@@ -28,14 +28,14 @@ public class OnePointCross implements Crosser {
 
         for (int i =0; i < pointOfCut; i++)
         {
-            firstChild.assignGen(i, firstParent.getGenOnPosition(i));
-            secondChild.assignGen(i, secondParent.getGenOnPosition(i));
+            firstChild.assignGen(i, firstParent.getGenAtPosition(i));
+            secondChild.assignGen(i, secondParent.getGenAtPosition(i));
         }
 
         for (int i = pointOfCut; i < Individual.getNumberOfGens(); i++)
         {
-            firstChild.assignGen(i, secondParent.getGenOnPosition(i));
-            secondChild.assignGen(i, firstParent.getGenOnPosition(i));
+            firstChild.assignGen(i, secondParent.getGenAtPosition(i));
+            secondChild.assignGen(i, firstParent.getGenAtPosition(i));
         }
 
 
