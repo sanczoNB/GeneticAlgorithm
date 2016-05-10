@@ -1,5 +1,7 @@
 package View.Parametrs;
 
+import Genetic.FitnessCalculator.IFitnessCalculator;
+
 /**
  * Created by sanczo on 2016-05-04.
  */
@@ -35,17 +37,17 @@ public class Parameters {
         return instance;
     }
 
-    private void setUpParameters(){
+    public void setUpParameters(){
 
-        genDiameter = 75;
-        marginTop = 20;
-        marginBottom = 20;
+        genDiameter = 20;
+        marginTop = 5;
+        marginBottom = 5;
         marginLeft = 5;
         marginRight = 5;
-        fontSize = 30;
+        fontSize = 15;
 
-        resolutionWidth = 1366;
-        resolutionHeight = 768;
+        resolutionWidth = 1366/4;
+        resolutionHeight = 768/2;
 
     }
 

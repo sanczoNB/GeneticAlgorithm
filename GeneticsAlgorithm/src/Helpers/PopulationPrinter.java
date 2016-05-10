@@ -32,7 +32,7 @@ public class PopulationPrinter {
             writer.print("Najgorszy osobnik: " + p.getWorstIndividual() + "\t");
             writer.print("Srednia w populacj: " + p.getFitnessAverage()+"\n");
 
-            List<Individual> population = p.population;
+            List<Individual> population = p.getPopulation();
 
             population.stream().forEach(individual -> writer.println(java.util.Arrays.toString(individual.gens)));
 

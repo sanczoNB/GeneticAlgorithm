@@ -1,8 +1,18 @@
 package View;
 
+import Controller.Controller;
 import Controller.IController;
+import Exceptions.FlatPopulationException;
+import Genetic.AlgorithmParameters;
+import Genetic.Individual;
+import Helpers.ProgramDependencies;
 import Model.*;
+import MyGraph.GraphMaker;
+import MyGraph.IGraphService;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -10,12 +20,16 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
 
 /**
  * Created by sanczo on 2016-05-05.
  */
-public class PopulationView extends Application {
+public class PopulationView extends Application implements EventHandler<ActionEvent> {
 
     private IController controller;
 
@@ -34,17 +48,43 @@ public class PopulationView extends Application {
 
     private Group group;
 
+    private static AlgorithmParameters algorithmParameters;
 
-    public PopulationView(){
+    public static void main(String[] args) throws FlatPopulationException {
 
+
+        String fileName = "GEOM4";
+
+        GraphMaker factory = new GraphMaker(fileName + ".col");
+
+        IGraphService graph =  factory.getGraph();
+
+        algorithmParameters = AlgorithmParameters.getInstance();
+
+        View.Parametrs.Parameters.getInstance().setUpParameters();
+
+        algorithmParameters.setGraphService(graph);
+
+        algorithmParameters.setMaxGenValue(Individual.getNumberOfGens() - 1);
+
+        ProgramDependencies.setUpDependencies();
+
+        launch();
+
+
+
+    }
+
+
+    public PopulationView() {
+        super();
         parameters = View.Parametrs.Parameters.getInstance();
-
     }
 
 
     public void createViewItems(){
 
-        titleLabel = new Label();
+        titleLabel = new Label("");
 
         canvasForGraphicalRepresentationOfPopulation = new Canvas();
 
@@ -57,17 +97,25 @@ public class PopulationView extends Application {
         scrollPane.setContent(canvasForGraphicalRepresentationOfPopulation);
         scrollPane.setPrefSize(parameters.getResolutionWidth(), parameters.getResolutionHeight());
 
-        group = new Group();
+        BorderPane border = new BorderPane();
+
+        border.setCenter(canvasForGraphicalRepresentationOfPopulation);
+
+        border.setBottom(addHBox());
+
+        border.setTop(titleLabel);
+
+        group= new Group();
 
         group.getChildren().add(titleLabel);
 
         group.getChildren().add(scrollPane);
 
-        group.getChildren().add(previous);
 
-        group.getChildren().add(next);
 
-        scene = new Scene(group, parameters.getResolutionWidth(), parameters.getResolutionHeight());
+
+
+        scene = new Scene(border, parameters.getResolutionWidth(), parameters.getResolutionHeight());
 
     }
 
@@ -77,9 +125,15 @@ public class PopulationView extends Application {
 
         primaryStage.setTitle("Genetic Algorithm Simulator");
 
+        controller = new Controller(this);
+
+        controller.callForZeroGeneration();
+
         primaryStage.setScene(scene);
 
         primaryStage.show();
+
+
     }
 
     public void setSizeForCanvasForGraphicalRepresentationOfPopulation(Size size){
@@ -92,6 +146,10 @@ public class PopulationView extends Application {
     public void drawPopulationRepresentation(GraphicPopulationRepresentation population){
 
         GraphicsContext gc = canvasForGraphicalRepresentationOfPopulation.getGraphicsContext2D();
+
+        gc.clearRect(0,0,canvasForGraphicalRepresentationOfPopulation.getWidth(), canvasForGraphicalRepresentationOfPopulation.getHeight());
+
+        gc.setFont(new Font(parameters.getFontSize()));
 
         for (int i = 0; i < population.size(); i++){
             GraphicIndividualRepresentation individual = population.getGraphicIndividualRepresentationAtPosition(i);
@@ -122,5 +180,29 @@ public class PopulationView extends Application {
 
         titleLabel.setText("Populations nr: " + populationNumber);
 
+    }
+
+    private HBox addHBox() {
+        HBox hbox = new HBox();
+        hbox.setPadding(new Insets(15, 12, 15, 12));
+        hbox.setSpacing(10);
+        hbox.setStyle("-fx-background-color: #336699;");
+
+        Button previous = new Button("Previous");
+        previous.setPrefSize(100, 20);
+
+        next = new Button("Next populutaion");
+        next.setOnAction(this);
+        next.setPrefSize(100, 20);
+        hbox.getChildren().addAll(previous, next);
+
+        return hbox;
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+        if (event.getSource() == next){
+            controller.callForNextGeneration();
+        }
     }
 }

@@ -2,6 +2,8 @@ package Genetic;
 
 import Helpers.RandomHelper;
 
+import java.util.Collections;
+
 /**
  * Created by sanczo on 2016-03-10.
  */
@@ -11,7 +13,7 @@ public class Individual {
 
     public int[] gens;
 
-    private int fitness = -1;
+    private double fitness = -1;
 
     private double normalizedFitness;
 
@@ -44,11 +46,11 @@ public class Individual {
 
 
 
-    public int getFitness() {
+    public double getFitness() {
         return fitness;
     }
 
-    public void setFitness(int fitness) {
+    public void setFitness(double fitness) {
 
         this.fitness = fitness;
     }
@@ -130,6 +132,20 @@ public class Individual {
 
     @Override
     public String toString() {
-        return Integer.toString(fitness);
+        return Double.toString(fitness);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj instanceof Individual) {
+
+            Individual other = (Individual) obj;
+
+            return java.util.Arrays.equals(this.gens, other.gens);
+
+        }
+        else
+            return false;
     }
 }

@@ -9,7 +9,6 @@ import java.util.*;
  */
 public class Vertex implements Comparable<Vertex> {
 
-
     public static int[] allAllowedColors;
 
     private int Id;

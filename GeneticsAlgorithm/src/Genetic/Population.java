@@ -2,6 +2,7 @@ package Genetic;
 
 import Comperators.SortByFitnessComparator;
 import Exceptions.FlatPopulationException;
+import Genetic.Observer.NewIndividualInPopulationObserver;
 import Helpers.PermutationConverter;
 import Helpers.RandomHelper;
 import MyGraph.IGraphService;
@@ -16,7 +17,9 @@ import java.util.*;
  */
 public class Population {
 
-    public List<Individual> population;
+    private List<Individual> population;
+
+    private List<Individual> oldPopulation;
 
     private IGraphService graphService;
 
@@ -28,9 +31,6 @@ public class Population {
 
     private double fitnessAverage;
 
-    private Set<Integer> bannedFitness;
-
-    private Map<Integer, Integer> fitnessToBan;
 
     private AlgorithmParameters parameters;
 
@@ -42,6 +42,8 @@ public class Population {
 
     private int populationNumber;
 
+    private List<NewIndividualInPopulationObserver> addObservers;
+
 
 
 
@@ -49,10 +51,9 @@ public class Population {
     public Population(IGraphService graph) {
         this.graphService = graph;
         parameters = AlgorithmParameters.getInstance();
-        population = new ArrayList<>(parameters.getSizeOfPopulation());
-        bannedFitness = new HashSet<>();
-        fitnessToBan = new HashMap<>();
+        population = new ArrayList<>(parameters.SizeOfPopulation());
         frostbite = new boolean[Individual.getNumberOfGens()];
+        addObservers = new LinkedList<>();
 
         mapsWhichShowWhatGenAppearOnCertainPosition = new LinkedList<>();
         for (int i = 0; i < Individual.getNumberOfGens(); i++)
@@ -71,22 +72,7 @@ public class Population {
         return worstIndividual;
     }
 
-    public void initialPopulation() {
 
-
-
-        for (int i = 0; i < parameters.getSizeOfPopulation(); i++) {
-            Individual individual;
-            do {
-                individual = parameters.getInitializer().Init();
-                setFitness(individual);
-            }while (bannedFitness.contains(individual.getFitness()));
-            countHowManyIsIndividualWithTheSameFitness(individual.getFitness());
-            population.add(individual);
-        }
-
-
-    }
 
     public void CountPopulationParameters() throws FlatPopulationException {
         //resetTheBestIndividual();
@@ -114,7 +100,7 @@ public class Population {
     }
 
     private void CountAverage() {
-        fitnessAverage = ((double) fitnessSum) / ((double) parameters.getSizeOfPopulation());
+        fitnessAverage = ((double) fitnessSum) / ((double) parameters.SizeOfPopulation());
     }
 
     private void addToFitnessSum(Individual individual) {
@@ -150,7 +136,7 @@ public class Population {
 
     public void countNormalizedFitness() throws FlatPopulationException {
         //Krok 1 Obliczamy wartosc fitness dla najgorzej przystosowanego osobnika
-        int worstFitness = worstIndividual.getFitness();
+        double worstFitness = worstIndividual.getFitness();
 
         double sum = 0;
         //Krok 2 O zwyk�ego fitness odejmujemy najgorszy fitness tak aby funkcja dopasowania byla rosnoca
@@ -189,97 +175,6 @@ public class Population {
         }
     }
 
-
-    public void selectNewPopulation() {
-
-        resetBan();
-
-        Collections.sort(population, new SortByFitnessComparator());
-
-        List<Individual> nextPopulation = takeEliteToNextGeneration();
-
-        List<Individual> candidateForParents = chooseParents();
-
-        double parentAverage = countAverage(candidateForParents);
-
-        List<Pair<Individual, Individual>> futureParents = arrangePairs(candidateForParents);
-
-        List<Individual> resultsOfCrossing = new ArrayList<>();
-
-        for(Pair<Individual,Individual> parents : futureParents)
-        {
-            Pair<Individual, Individual> children = produceOffSpring(parents);
-            resultsOfCrossing.add(children.getValue0());
-            resultsOfCrossing.add(children.getValue1());
-
-        }
-
-        double crossAverage = countAverage(resultsOfCrossing);
-
-        List<Individual> childrenAfterMutating = proceedMutation(resultsOfCrossing);
-
-        double mutateAverage = countAverage(childrenAfterMutating);
-
-        for(Individual child : childrenAfterMutating)
-        {
-            tryAddChildToPopulation(nextPopulation, child);
-        }
-
-
-
-        population = nextPopulation;
-
-       // asigneMapsOfFrostbite();
-        System.out.println("Frostbite asigne");
-
-
-
-    }
-
-    private void tryAddChildToPopulation(List<Individual> nextGeneration ,Individual child) {
-        int counter = 0;
-
-        setFitness(child);
-
-        boolean isDuplicate = isDuplicate(nextGeneration, child);
-        boolean shouldBeBanned = bannedFitness.contains(child.getFitness());
-
-  /*      while ((isDuplicate
-                || incorrectIndividual
-                || shouldBeBanned)
-                && counter < 5)
-        {
-            child.mutate(frostbite);
-            isDuplicate = isDuplicate(nextGeneration, child);
-            child.setFitness(graphService.colorGraph(child.gens));
-            shouldBeBanned = bannedFitness.contains(child.getFitness());
-            incorrectIndividual = child.getFitness() == parameters.getMaxGenValue()+1;
-            counter++;
-
-            //report(isDuplicate, shouldBeBanned, incorrectIndividual);
-
-        }*/
-
-    /*    if (counter == 5)
-        {
-            while (isDuplicate
-                    || incorrectIndividual)
-            {
-                child = parameters.getInitializer().Init();
-                isDuplicate = isDuplicate(nextGeneration, child);
-                child.setFitness(graphService.colorGraph(child.gens));
-                incorrectIndividual = child.getFitness() == parameters.getMaxGenValue()+1;
-                //report(isDuplicate, shouldBeBanned, incorrectIndividual);
-            }
-        }*/
-
-        if (isDuplicate)
-            child.setFitness(Integer.MAX_VALUE);
-
-        countHowManyIsIndividualWithTheSameFitness(child.getFitness());
-        nextGeneration.add(child);
-    }
-
     private void report(boolean isDuplicate, boolean shouldBeBanned, boolean incorrectIndividual) {
         if (isDuplicate)
             System.out.println("Jestem duplikatem");
@@ -288,17 +183,6 @@ public class Population {
         if (shouldBeBanned)
             System.out.println("Zaduzo osobnikow jednego");
     }
-
-    private List<Individual> proceedMutation(List<Individual> resultsOfCrossing) {
-
-        for (Individual individual : resultsOfCrossing)
-        {
-                individual.mutate(frostbite);
-        }
-        return resultsOfCrossing;
-    }
-
-
 
     private boolean isDuplicate(List<Individual> nextPopulation, Individual child) {
         boolean isDuplicate = false;
@@ -310,59 +194,19 @@ public class Population {
         return isDuplicate;
     }
 
-    public List<Individual> chooseParents()
-    {
-        int parentsNumber = parameters.getSizeOfPopulation() - parameters.getNumberOfElite();
-        List<Individual> theChoosens = new ArrayList<>(parentsNumber);
-        for(int i = 0; i < parentsNumber; i++)
-        {
-            if(i == parameters.getK1())
-            {
-                parameters.setTournamentSize((int) Math.ceil(parameters.getAverageTournamentSize()));
-            }
-            theChoosens.add(parameters.getChooser().choose(population));
-        }
+    public List<Individual> getNbestIndividual(int howMany){
 
-        return theChoosens;
+        Collections.sort(population, new SortByFitnessComparator());
+
+        List<Individual> bests = new ArrayList<>(population.subList(0,howMany));
+
+        List<Individual> depCloneBests = new LinkedList<>();
+
+        bests.stream().forEach(individual -> depCloneBests.add(Individual.deepCloning(individual)));
+
+        return depCloneBests;
     }
-
-    public List<Pair<Individual,Individual>> arrangePairs(List<Individual> candidatesForParents)
-    {
-
-        int pairsQuantity = (parameters.getSizeOfPopulation() - parameters.getNumberOfElite()) / 2;
-        List<Pair<Individual,Individual>> pairs = new ArrayList<>();
-        for(int i = 0; i < pairsQuantity; i++)
-        {
-            Individual firstParent = candidatesForParents.get(RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(candidatesForParents.size()));
-            candidatesForParents.remove(firstParent);
-
-            Individual secondParent = candidatesForParents.get(RandomHelper.giveRandomNumberFromZeroTo_N_Exclusive(candidatesForParents.size()));
-            candidatesForParents.remove(secondParent);
-
-            pairs.add(new Pair<>(firstParent, secondParent));
-        }
-
-        return pairs;
-    }
-
-    public Pair<Individual, Individual> produceOffSpring(Pair<Individual, Individual> parents) {
-
-        Individual firstParent = parents.getValue0();
-        Individual secondParent = parents.getValue1();
-
-        Pair<Individual, Individual> children;
-
-        if(RandomHelper.IfItHappenWithAskedProbability(parameters.getChanceToCross()))
-            children = parameters.getCrosser().cross(firstParent, secondParent);
-        else
-            children = new Pair<>(Individual.deepCloning(firstParent), Individual.deepCloning(secondParent));
-
-        setFitness(children.getValue0());
-        setFitness(children.getValue1());
-
-        return children;
-    }
-
+/*
     private List<Individual> takeEliteToNextGeneration()
     {
         List<Individual> nextGeneration = new ArrayList<>(population.subList(0,parameters.getNumberOfElite()));
@@ -376,7 +220,7 @@ public class Population {
             countHowManyIsIndividualWithTheSameFitness(individual.getFitness());
         }
         return nextGeneration;
-    }
+    }*/
 
     //Przykład polimorfizmu inkluzyjnego, późne wiązanie
     private Individual Mutate(Individual individual) {
@@ -410,29 +254,9 @@ public class Population {
         return fitnessAverage;
     }
 
-    private void resetBan()
-    {
-        bannedFitness.clear();
-        fitnessToBan.clear();
-    }
 
-    private void countHowManyIsIndividualWithTheSameFitness(int fitness){
-        if (! bannedFitness.contains(fitness))
-        {
-            Integer numberOfFault = fitnessToBan.get(fitness);
-            if (numberOfFault == null)
-                fitnessToBan.put(fitness, 1);
-            else
-                fitnessToBan.put(fitness, numberOfFault +1);
 
-            if(fitnessToBan.get(fitness) == parameters.getMaxNumberIndividualWithTheSameFitness())
-                bannedFitness.add(fitness);
-        }
-        else {
-            Integer numberOfFault = fitnessToBan.get(fitness);
-            fitnessToBan.put(fitness, numberOfFault +1);
-        }
-    }
+
 
     public boolean isProgress() {
         return progress;
@@ -455,17 +279,7 @@ public class Population {
 
     public void asigneFrostbite()
     {
-        for (int i = 0; i < frostbite.length; i++)
-        {
-            boolean onlyOneValueOnThisPosition = true;
-            int genOfFirstIndividualONiPosition = population.get(0).gens[i];
-            int j = 1;
-            while (j < population.size() && onlyOneValueOnThisPosition)
-            {
-                onlyOneValueOnThisPosition = genOfFirstIndividualONiPosition == population.get(j).gens[i];
-            }
-            frostbite[i] = onlyOneValueOnThisPosition;
-        }
+
     }
     public void asigneMapsOfFrostbite()
     {
@@ -524,5 +338,39 @@ public class Population {
         return population.get(index);
     };
 
+    public void add(Individual individual)
+    {
+        population.add(individual);
+
+        notifyAllNewIndividualInPopulationObserver(individual);
+    }
+
+    public List<Individual> getPopulation() {
+        return population;
+    }
+
+    public List<Individual> getOldPopulation() {
+        return oldPopulation;
+    }
+
+    public void addNewIndividualInPopulationObserver(NewIndividualInPopulationObserver observer){
+        addObservers.add(observer);
+    }
+
+    public void removeNewIndividualInPopulationObserver(NewIndividualInPopulationObserver observer){
+        addObservers.remove(observer);
+    }
+    public void notifyAllNewIndividualInPopulationObserver(Individual individual){
+        addObservers.stream().forEach(o -> o.individualAdded(individual));
+    }
+
+    public void sortByFitness(){
+        Collections.sort(population, new SortByFitnessComparator());
+    }
+
+    public void changeGenerations(){
+        oldPopulation = new LinkedList<>(population);
+        population.clear();
+    }
 
 }

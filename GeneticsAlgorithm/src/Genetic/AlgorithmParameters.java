@@ -1,9 +1,19 @@
 package Genetic;
 
 import Choosers.Chooser;
+import Choosers.Tournament;
 import Crossers.Crosser;
+import Crossers.OnePointCross;
+import Genetic.FitnessCalculator.IFitnessCalculator;
+import Genetic.FitnessCalculator.LeastNumberOfUsedColorFitnessRPR;
+import Genetic.GenFrostBite.FrostBiteGenReasearcher;
+import Genetic.GenFrostBite.IGenFrostBite;
 import Initialization.Initializer;
+import Initialization.ReversePermutationInitializer;
 import Mutatet.Mutating;
+import Mutatet.RandomMutate;
+import MyGraph.GraphMaker;
+import MyGraph.IGraphService;
 
 /**
  * Created by sanczo on 2016-04-05.
@@ -28,6 +38,10 @@ public class AlgorithmParameters {
 
     private Initializer initializer;
 
+    private IFitnessCalculator fitnessCalculator;
+
+    private IGenFrostBite frostGenBiteReasearcher;
+
     private int maxGenValue;
 
     private int maxNumberOfIterationsWithoutProgress;
@@ -46,10 +60,14 @@ public class AlgorithmParameters {
 
     private int tournamentSize;
 
+    private IGraphService graphService;
+
+    private String sourceFilePath;
+
 
     private AlgorithmParameters()
     {
-
+        setUpParameters();
     }
 
     public static AlgorithmParameters getInstance()
@@ -59,7 +77,7 @@ public class AlgorithmParameters {
         return instance;
     }
 
-    public int getSizeOfPopulation() {
+    public int SizeOfPopulation() {
         return sizeOfPopulation;
     }
 
@@ -191,5 +209,45 @@ public class AlgorithmParameters {
 
     public void setChanceToMutationFrostGen(double chanceToMutationFrostGen) {
         this.chanceToMutationFrostGen = chanceToMutationFrostGen;
+    }
+
+    public IGraphService GraphService() {
+        return graphService;
+    }
+
+    public void setGraphService(IGraphService graphService) {
+        this.graphService = graphService;
+    }
+
+    private void setUpParameters(){
+
+        sourceFilePath = "GEOM4.col";
+        GraphMaker maker = new GraphMaker(sourceFilePath);
+        graphService = maker.getGraph();
+
+        maxNumberOfIterationsWithoutProgress = 200;
+        sizeOfPopulation = 10;
+        chanceToCross = 0.85;
+        chanceToMutationCasualGen = 0.2 / maxGenValue;
+        chanceToMutationFrostGen = 0.5 / maxGenValue;
+        numberOfElite = 0;
+        maxNumberIndividualWithTheSameFitness = 150;
+
+        setAverageTournamentSize(5.4);
+
+        chooser = new Tournament();
+        crosser = new OnePointCross();
+        mutating = new RandomMutate();
+        initializer = new ReversePermutationInitializer();
+        fitnessCalculator = new LeastNumberOfUsedColorFitnessRPR(graphService);
+        frostGenBiteReasearcher = new FrostBiteGenReasearcher();
+    }
+
+    public IFitnessCalculator getFitnessCalculator() {
+        return fitnessCalculator;
+    }
+
+    public IGenFrostBite getFrostGenBiteReasearcher() {
+        return frostGenBiteReasearcher;
     }
 }
